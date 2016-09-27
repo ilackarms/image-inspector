@@ -9,10 +9,6 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
-
-	docker "github.com/fsouza/go-dockerclient"
-	iicmd "github.com/openshift/image-inspector/pkg/cmd"
-	"github.com/openshift/image-inspector/pkg/openscap"
 )
 
 type FailMockScanner struct{}
@@ -53,8 +49,7 @@ func (ms *NoResMockScanner) ResultsFileName() string {
 
 type MockImageServer struct{}
 
-func (mis *MockImageServer) ServeImage(imageMetadata *docker.Image,
-	meta *iiapi.InspectorMetadata,
+func (mis *MockImageServer) ServeImage(meta *iiapi.InspectorMetadata,
 	scanReport []byte,
 	htmlScanReport []byte) error {
 	return nil
