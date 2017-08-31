@@ -6,8 +6,9 @@ import (
 )
 
 func TestValidate(t *testing.T) {
-	noURI := NewDefaultImageInspectorOptions()
-	noURI.URI = ""
+	noDockerSocket := NewDefaultImageInspectorOptions()
+	noDockerSocket.UseDockerSocket = true
+	noDockerSocket.DockerSocket = ""
 
 	dockerCfgAndUsername := NewDefaultImageInspectorOptions()
 	dockerCfgAndUsername.Image = "image"
@@ -26,10 +27,13 @@ func TestValidate(t *testing.T) {
 	goodConfigUsername.Image = "image"
 	goodConfigUsername.Username = "username"
 	goodConfigUsername.PasswordFile = "types.go"
+	goodConfigUsername.ScanType = "clamav"
+	goodConfigUsername.ClamSocket = "clamav"
 
 	goodConfigWithDockerCfg := NewDefaultImageInspectorOptions()
 	goodConfigWithDockerCfg.Image = "image"
 	goodConfigWithDockerCfg.DockerCfg.Set("types.go")
+	goodConfigWithDockerCfg.ScanType = "openscap"
 
 	noScanTypeAndDir := NewDefaultImageInspectorOptions()
 	noScanTypeAndDir.Image = "image"
@@ -64,11 +68,15 @@ func TestValidate(t *testing.T) {
 	badScanOptionsHTMLWrongScan.OpenScapHTML = true
 	badScanOptionsHTMLWrongScan.ScanType = "nosuchscantype"
 
+	noSuchPullPolicy := NewDefaultImageInspectorOptions()
+	noSuchPullPolicy.Image = "image"
+	noSuchPullPolicy.PullPolicy = "whatisdocker?"
+
 	tests := map[string]struct {
 		inspector      *ImageInspectorOptions
 		shouldValidate bool
 	}{
-		"no uri":                              {inspector: noURI, shouldValidate: false},
+		"no docker-socket":                    {inspector: noDockerSocket, shouldValidate: false},
 		"no image":                            {inspector: NewDefaultImageInspectorOptions(), shouldValidate: false},
 		"docker config and username":          {inspector: dockerCfgAndUsername, shouldValidate: false},
 		"username and no password file":       {inspector: usernameNoPasswordFile, shouldValidate: false},
@@ -82,6 +90,7 @@ func TestValidate(t *testing.T) {
 		"good config with scan options":       {inspector: goodScanOptions, shouldValidate: true},
 		"bad config with html and no scan":    {inspector: badScanOptionsHTMLnoScan, shouldValidate: false},
 		"bad config with html and wrong scan": {inspector: badScanOptionsHTMLWrongScan, shouldValidate: false},
+		"no such pull policy available":       {inspector: noSuchPullPolicy, shouldValidate: false},
 	}
 
 	for k, v := range tests {

@@ -90,6 +90,7 @@ function list_test_packages_under() {
               -path 'vendor'                  \
               -o -path '*_output'             \
               -o -path '*.git'                \
+              -o -path '*vendor/*'            \
               -o -path '*test/*'              \
         \) -prune                             \
     \) -name '*_test.go' | xargs -n1 dirname | sort -u | xargs -n1 printf "${II_GO_PACKAGE}/%s\n"
@@ -110,7 +111,7 @@ done
 gotest_flags+=" $*"
 
 # Determine packages to test
-vendor_package_prefix="vendor"
+vendor_package_prefix="vendor/"
 test_packages=
 if [[ -n "${package_args}" ]]; then
     for package in ${package_args}; do
@@ -127,4 +128,4 @@ else
     test_packages="${ii_test_packages}"
 fi
 
-go test ${gotest_flags} ${test_packages}
+go test ${gotest_flags} -tags 'containers_image_openpgp exclude_graphdriver_devicemapper exclude_graphdriver_btrfs' ${test_packages}

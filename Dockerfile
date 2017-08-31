@@ -1,20 +1,25 @@
-FROM openshift/origin-base
-MAINTAINER Federico Simoncelli <fsimonce@redhat.com>
+FROM centos:7
+MAINTAINER      Federico Simoncelli <fsimonce@redhat.com>
 
-RUN yum install -y make golang openscap-scanner && yum clean all
+RUN yum update -y && \
+    yum install -y openscap-scanner git && \
+    yum clean all
 
-ENV PKGPATH=/go/src/github.com/openshift/image-inspector
+ENV PATH=$PATH:/usr/local/go/bin
+ENV CGO_ENABLED=0
 
-WORKDIR $PKGPATH
+COPY .  /go/src/github.com/openshift/image-inspector
 
-ADD .   $PKGPATH
-ENV GOBIN  /usr/bin
-ENV GOPATH /go
-
-RUN cd $PKGPATH && \
-        go install $PKGPATH/cmd/image-inspector.go && \
-        rm -rf ~/.trash-cache && \
-        mkdir -p /var/lib/image-inspector
+RUN cd /tmp && \
+    curl -LO https://storage.googleapis.com/golang/go1.7.linux-amd64.tar.gz && \
+    tar -C /usr/local -xvzf go1.7.linux-amd64.tar.gz && \
+    rm -f go1.7.linux-amd64.tar.gz && \
+    GOBIN=/usr/bin \
+    GOPATH=/go \
+    go install -tags 'containers_image_openpgp exclude_graphdriver_devicemapper exclude_graphdriver_btrfs' \
+    -a -installsuffix cgo \
+    /go/src/github.com/openshift/image-inspector/cmd/image-inspector.go && \
+    mkdir -p /var/lib/image-inspector
 
 EXPOSE 8080
 

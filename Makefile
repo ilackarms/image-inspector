@@ -7,35 +7,22 @@
 #   clean: Clean up.
 
 OUT_DIR = _output
-OUT_PKG_DIR = Godeps/_workspace/pkg
-
-# Vendor packages from vendor.conf to vendor/
-# make deps
-deps:
-	go get -u github.com/rancher/trash
-	trash
-
 
 # Build code.
 #
 # Example:
 #   make
 #   make all
-all build: deps build-local
-.PHONY: all build
-
-# Local build code without dependencies
-build-local:
+all build:
 	hack/build-go.sh
-.PHONY: build-local
-
+.PHONY: all build
 
 # Remove all build artifacts.
 #
 # Example:
 #   make clean
 clean:
-	rm -rf $(OUT_DIR) $(OUT_PKG_DIR)
+	rm -rf $(OUT_DIR)
 .PHONY: clean
 
 # Verify code conventions are properly setup.
